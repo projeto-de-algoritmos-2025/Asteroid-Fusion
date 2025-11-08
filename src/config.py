@@ -2,7 +2,7 @@
 LARGURA_TELA = 800
 ALTURA_TELA = 600
 FPS = 60
-TITULO = "Deep Impact: Closest Pair Fusion"
+TITULO = "Deep Impact: Asteroid Fusion"
 
 # --- Cores (usando RGB) ---
 BRANCO = (255, 255, 255)
@@ -13,7 +13,7 @@ AMARELO_DMIN = (255, 255, 0)
 
 # --- Configurações do Jogador e Balas ---
 VELOCIDADE_ROTACAO = 3.5
-ACELERACAO = 0.15
+ACELERACAO = 0.1
 FRICAO = 0.99 
-VELOCIDADE_MAXIMA = 7
+VELOCIDADE_MAXIMA = 6
 VELOCIDADE_BALA = 8

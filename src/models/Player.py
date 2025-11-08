@@ -1,6 +1,5 @@
 import pygame
 import math
-from src.models.Asteroid import Asteroid
 from src.models.Bullet import Bullet
 from src.config import *
 
@@ -56,8 +55,7 @@ class Player(pygame.sprite.Sprite):
         pos_x_tiro = self.x - self.raio * math.cos(angle_rad + 270)
         pos_y_tiro = self.y + self.raio * math.sin(angle_rad + 270)
 
-        return Bullet(pos_x_tiro, pos_y_tiro, angle_rad), Asteroid(100, 100)
-    
+        return Bullet(pos_x_tiro, pos_y_tiro, angle_rad)
     def update(self):
         # rotacionando o player
         self.image = pygame.transform.rotate(self.original_image, self.angle)

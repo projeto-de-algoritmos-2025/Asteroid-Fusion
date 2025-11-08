@@ -28,5 +28,6 @@ class Bullet(pygame.sprite.Sprite):
 
         self.vida -= 1
 
+        # para de renderizar a bala se ela sair da tela ou acabar o lifespan dela
         if self.vida <= 0 or self.x < 0 or self.x > LARGURA_TELA or self.y < 0 or self.y > ALTURA_TELA:
             self.kill()
