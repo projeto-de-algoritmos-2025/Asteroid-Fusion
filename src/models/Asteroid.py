@@ -1,7 +1,7 @@
 import pygame
 import random
 import math
-from src.config import *
+from config import *
 
 class Asteroid(pygame.sprite.Sprite):
     # Mapeamento do número (tamanho) aos atributos de nível
@@ -11,7 +11,7 @@ class Asteroid(pygame.sprite.Sprite):
         1: {"nivel": "Pequeno", "raio": 20, "velocidade_max": 3} # asteroid1.png
     }
 
-    def __init__(self, size:int):
+    def __init__(self, size:int, x=None, y=None, vx=None, vy=None):
         super().__init__()
         
         # Definindo atributos com base no tamanho
@@ -21,11 +21,19 @@ class Asteroid(pygame.sprite.Sprite):
         self.raio = props["raio"]
         self.velocidade_max = props["velocidade_max"]
 
-        # gerando posição inicial fora da tela
-        self.x, self.y = self._generate_initial_coordinates()
+        # gerando posição inicial
+        if x is None or y is None:
+            self.x, self.y = self._generate_initial_coordinates() # Posição inicial fora da tela
+        else:
+            self.x = float(x) # Começa na posição da colisão
+            self.y = float(y)
 
         # gerando velocidade inicial
-        self.vx, self.vy = self._generate_initial_velocity()
+        if vx is None or vy is None:
+            self.vx, self.vy = self._generate_initial_velocity() # Velocidade inicial aleatória
+        else:
+            self.vx = float(vx) # Usa a velocidade calculada pelo split
+            self.vy = float(vy)
 
         # Angulação inicial e velocidade de rotação do asteroide
         self.angle = random.uniform(0, 360) 
@@ -39,8 +47,8 @@ class Asteroid(pygame.sprite.Sprite):
     
     def _generate_initial_velocity(self):
         angle_rad = random.uniform(0, 2 * math.pi)
-        velocidade = random.uniform(0.5, self.velocidade_max) 
-        
+        velocidade = random.uniform(0.5, self.velocidade_max)
+
         vx = velocidade * math.cos(angle_rad)
         vy = velocidade * math.sin(angle_rad)
         return vx, vy
@@ -72,7 +80,32 @@ class Asteroid(pygame.sprite.Sprite):
             y = random.randint(0, ALTURA_TELA)
 
         return float(x), float(y)
-    
+
+    def split(self):
+        novos_asteroides = []
+        # 1 asteroide grande se divide em 2 médios
+        # 1 asteroide médio se divide em 2 pequenos
+        new_size = self.size - 1
+
+        if new_size < 1:
+            return novos_asteroides
+        
+        props_new = self.TAMANHOS[new_size]
+        novo_raio = props_new["raio"]
+        base_vel = self.velocidade_max + 1
+
+        # depois de destruido, ele vai para uma direção aleatória
+        base_angle_rad = random.uniform(0, 2 * math.pi)
+        push_angle_rad = base_angle_rad
+
+        for _ in range(2):
+            vx = base_vel * math.cos(push_angle_rad)
+            vy = base_vel * math.sin(push_angle_rad)
+            novos_asteroides.append(Asteroid(new_size, x=self.x, y=self.y, vx=vx, vy=vy))
+            push_angle_rad += math.pi # varia 180 graus para o próximo asteroide
+
+        return novos_asteroides
+
     def update(self):
         # Atualiza a Posição (Movimento)
         self.x += self.vx
