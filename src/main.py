@@ -23,38 +23,40 @@ import random
         # 1 grande + 1 pequeno => nada?
         # 1 médio + 1 pequeno => 1 grande?
     # talvez dividir a collision_detection em duas funções, uma para o jogador e outra para os asteroides
+# tá uma putaria misturando inglês com português, tlvz escolher um só ou fdse
 # botar sons? acho q seria trampo dmais
-# o numero de asteroides na tela tá bom?
-# colocar o número de asteroides na tela no placar? 
-# mover o atributo de angulo para direita, acho que é bom deixar as informações do jogador todas em um só lugar na tela
-# tá uma putaria misturando inglês com português, tlvz escolher um idioma só
-# lógica do tiro tá boa? atirar mais balas?
+# colocar o número de asteroides na tela? 
+# a quantidade de asteroides na tela tá boa?
+# lógica do tiro tá boa? atirar mais balas? e se deixar a tecla espaço pressionada?
 
 def desenhar_placar(tela, jogador, score, fonte_placar, vida_icon, game_over, d_min_atual, closest_pair_timer):
-    
-    desenhar_texto(tela, f"Ângulo: {int((jogador.angle + PROPULSION_OFFSET) % 360)}°", fonte_placar, 10, 10)
-    
-    desenhar_texto(tela, f"Pontos: {score}", fonte_placar, LARGURA_TELA - 200, 15)
-    
-    desenhar_texto(tela, "Vidas:", fonte_placar, LARGURA_TELA - 200, 50)
-    
+    # ----- LADO DIREITO -----
+    ALTURA_INICIAL_DIREITA = 15
+    OFFSET_DIREITA = 200
+    desenhar_texto(tela, f"Ângulo: {int((jogador.angle + PROPULSION_OFFSET) % 360)}°", fonte_placar, LARGURA_TELA - OFFSET_DIREITA, ALTURA_INICIAL_DIREITA)
+    desenhar_texto(tela, f"Pontos: {score}", fonte_placar, LARGURA_TELA - OFFSET_DIREITA, ALTURA_INICIAL_DIREITA + 35)
+    desenhar_texto(tela, "Vidas:", fonte_placar, LARGURA_TELA - OFFSET_DIREITA, ALTURA_INICIAL_DIREITA + 65)
     # icone pra cada vida
     start_x = LARGURA_TELA - 140
-    y = 45 # Na mesma linha do rótulo "Vidas:"
+    y = ALTURA_INICIAL_DIREITA + 60 # Na mesma linha do rótulo "Vidas:"
     for i in range(jogador.vidas):
         x = start_x + (i * (LIFE_ICON_SIZE + 5)) # 5px de espaçamento
         tela.blit(vida_icon, (x, y))
-
+    # ----------------------
+    
+    # ----- LADO ESQUERDO -----
+    ALTURA_INICIAL_ESQUERDA = 40
+    OFFSET_ESQUERDA = 10
     # distancia entre o par de asteroides mais proximos
     if d_min_atual != INF:
-        texto_dmin = f"Dmin: {d_min_atual:.2f}"
-        desenhar_texto(tela, texto_dmin, fonte_placar, 10, 40, AMARELO_DMIN)
+        texto_dmin = f"Distância: {d_min_atual:.2f}"
+        desenhar_texto(tela, texto_dmin, fonte_placar, OFFSET_ESQUERDA, ALTURA_INICIAL_ESQUERDA, AMARELO_DMIN)
     else:
-        desenhar_texto(tela, "D_min: N/A", fonte_placar, 10, 40)
-
+        desenhar_texto(tela, "D_min: N/A", fonte_placar, OFFSET_ESQUERDA, ALTURA_INICIAL_ESQUERDA)
     # timer para a próxima fusão
     tempo_restante = (INTERVALO_CALCULO_PARES - closest_pair_timer) / FPS
-    desenhar_texto(tela, f"Próxima Fusão em: {tempo_restante:.1f}s", fonte_placar, 10, 70, AZUL)
+    desenhar_texto(tela, f"Próxima Fusão em: {tempo_restante:.1f}s", fonte_placar, OFFSET_ESQUERDA, ALTURA_INICIAL_ESQUERDA + 30, AZUL)
+    # ----------------------
 
     if game_over:
         texto_fim = "GAME OVER"
@@ -70,7 +72,7 @@ def desenhar_texto(surface, text, font, x, y, color=BRANCO):
 
 def collision_detection(jogador, asteroides, balas, all_sprites, game_over, score, vulneravel):
     # Colisão: Bala vs. Asteroide 
-    # True, False: Destrói a bala, mas não o asteroide para processar o split primeiro.
+    # True, False: Destrói a bala, mas não o asteroide pq a gnt vai processar ele no split primeiro.
     colisoes_bala_ast = pygame.sprite.groupcollide(
         balas, asteroides, True, False, 
         pygame.sprite.collide_circle
@@ -91,7 +93,7 @@ def collision_detection(jogador, asteroides, balas, all_sprites, game_over, scor
             # Remove o asteroide original
             asteroide_atingido.kill()
         
-    # Colisão: Jogador vs. Asteroide (Game Over) 
+    # Colisão: Jogador vs. Asteroide 
     colisoes_jogador_ast = pygame.sprite.spritecollide(
         jogador, asteroides, False, 
         pygame.sprite.collide_circle
@@ -114,7 +116,7 @@ def collision_detection(jogador, asteroides, balas, all_sprites, game_over, scor
         vulneravel["janela_invulneravel"] = JANELA_INVULNERABILIDADE
     return game_over, score
 
-def spawn_asteroids(asteroides, all_sprites, spawn_timer):
+def spawn_asteroides(asteroides, all_sprites, spawn_timer):
     if len(asteroides) < ASTEROIDES_MAXIMOS_TELA and spawn_timer == FPS:
         novo_asteroide = Asteroid(random.choice(PROBABILIDADE_ASTEROIDES))
         asteroides.add(novo_asteroide)
@@ -167,10 +169,9 @@ def main():
                 if event.key in [pygame.K_RETURN, pygame.K_KP_ENTER]:
                     running = False
 
-        # somente executamos as mecânicas do jogo se não for game over
         if not game_over:
             # Spawn de Asteroides, limitado a uma certa quantidade na tela
-            spawn_asteroids(asteroides, all_sprites, spawn_timer)
+            spawn_asteroides(asteroides, all_sprites, spawn_timer)
             
             teclas = pygame.key.get_pressed()
             jogador.handle_input(teclas)

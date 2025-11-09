@@ -28,8 +28,8 @@ INTERVALO_CALCULO_PARES = FPS * 3
 
 # --- Configurações das Balas ---
 TAMANHO_BALA = 4
-VELOCIDADE_BALA = 8
-VIDA_BALA = FPS
+VELOCIDADE_BALA = 9
+VIDA_BALA = FPS + 10
 
 # --- Configurações do Jogador ---
 VELOCIDADE_ROTACAO = 3.5
