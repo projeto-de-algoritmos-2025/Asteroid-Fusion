@@ -7,22 +7,7 @@ import pygame
 import random
 
 # TODO
-# implementar colisão entre asteroides
-    # sempre colidir os asteroides com base na distância entre eles (dmin) ou fazer isso a cada x segundos?
-    # jeito 1  => verificar colisão entre os asteroides a cada frame => mexer na collision_detection => sempre chamar a closest_pair para mostrar os asteroides mais próximos (é o jeito q tá implementado agora)
-    # jeito 2 => verificar os pares mais próximos a cada x segundos (tipo 3 segundos) => fazer a lógica de colisão só nesses dois asteroides mais próximos 
-        # aqui poderia ser:
-            # a cada x segundos, calcular o par mais próximo e fazer eles se atrairem até colidirem (não faço ideia da dificuldade disso, mas não deve ser simples)
-            # a cada x segundos, calcular o par mais próximo e ver se eles colidiram
-    # não vou afirmar pq ainda não implementei, mas a lógica da colisão deve ser parecida com o split() dos asteroides, mas ao invés de criar novos asteroides, só juntar os dois em um maior
-        # colisão entre:
-        # 2 pequenos => 1 médio
-        # 2 médios => 1 grande
-        # 2 grandes => nada?
-        # 1 grande + 1 médio => nada?
-        # 1 grande + 1 pequeno => nada?
-        # 1 médio + 1 pequeno => 1 grande?
-    # talvez dividir a collision_detection em duas funções, uma para o jogador e outra para os asteroides
+# colocar um timer pra poder fazer a fusão dos asteroides
 # tá uma putaria misturando inglês com português, tlvz escolher um só ou fdse
 # botar sons? acho q seria trampo dmais
 # colocar o número de asteroides na tela? 
@@ -118,6 +103,22 @@ def bullet_collision(balas, asteroides, all_sprites, score):
 
     return score
 
+def asteroid_collision(asteroides, asteroide_a, asteroide_b, all_sprites):
+    # se os asteroides do par mais próximo colidiram, faz a lógica de fusão
+    if asteroide_a and asteroide_b:
+        if asteroide_a.immune_to_fusion_timer == 0 and asteroide_b.immune_to_fusion_timer == 0:
+            # verificar colisão entre os dois asteroides mais próximos
+            if pygame.sprite.collide_circle(asteroide_a, asteroide_b):
+                # Lógica de fusão
+                novo_asteroide = asteroide_a.fusion(asteroide_b)
+                if novo_asteroide:
+                    asteroides.add(novo_asteroide)
+                    all_sprites.add(novo_asteroide)
+                    # O PROBLEMA TÁ AQUI
+                    asteroide_a.kill()
+                    asteroide_b.kill()
+
+    return asteroides, all_sprites
 
 def collision_detection(jogador, asteroides, balas, all_sprites, game_over, score, vulneravel, asteroide_a, asteroide_b):
 

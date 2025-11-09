@@ -4,7 +4,7 @@ import random
 import math
 
 class Asteroid(pygame.sprite.Sprite):
-    def __init__(self, size:int, x=None, y=None, vx=None, vy=None, pontuacao=None):
+    def __init__(self, size:int, x=None, y=None, vx=None, vy=None, pontuacao=None, immune_to_fusion=None):
         super().__init__()
         
         # Definindo atributos com base no tamanho
@@ -13,8 +13,9 @@ class Asteroid(pygame.sprite.Sprite):
         self.nivel = props["nivel"]
         self.raio = props["raio"]
         self.velocidade_max = props["velocidade_max"]
-        self.pontuacao = props["pontuacao"] if pontuacao is None else pontuacao # pontuação passada na criação (usar na fusão, tlvz somar as pontuações dos dois asteroides e multiplicar por um fator?)
+        self.pontuacao = props["pontuacao"] if pontuacao is None else pontuacao 
         hitbox_deflate = -(3.5**size) - 8
+        self.immune_to_fusion_timer = 0  if immune_to_fusion is None else immune_to_fusion
 
         # gerando posição inicial
         if x is None or y is None:
@@ -95,12 +96,35 @@ class Asteroid(pygame.sprite.Sprite):
         for _ in range(2):
             new_vx = base_vel * math.cos(push_angle_rad)
             new_vy = base_vel * math.sin(push_angle_rad)
-            novos_asteroides.append(Asteroid(new_size, x=self.x, y=self.y, vx=new_vx, vy=new_vy))
-            push_angle_rad += math.pi # varia 180 graus para o próximo asteroide
+            novos_asteroides.append(Asteroid(new_size, x=self.x, y=self.y, vx=new_vx, vy=new_vy, immune_to_fusion=FPS * 2)) # novos asteroides começam imunes à fusão
+            push_angle_rad += math.pi # varia 180 graus para o próximo asteroide, mandando cada um para um lado
 
         return novos_asteroides
 
+    def fusion(self, outro_asteroide):
+        # Não pode fundir se já for o maior tamanho
+        if self.nivel == "Grande" or outro_asteroide.nivel == "Grande":
+            return None  
+
+        new_size = max(self.size, outro_asteroide.size) + 1
+        new_x = (self.x + outro_asteroide.x) / 2
+        new_y = (self.y + outro_asteroide.y) / 2
+
+        # A nova velocidade é a média das velocidades dos dois asteroides
+        new_vx = (self.vx + outro_asteroide.vx) / 2
+        new_vy = (self.vy + outro_asteroide.vy) / 2
+
+        # A pontuação do novo asteroide pode ser a soma das pontuações dos dois
+        new_pontuacao = self.pontuacao + outro_asteroide.pontuacao
+
+        novo_asteroide = Asteroid(new_size, x=new_x, y=new_y, vx=new_vx, vy=new_vy, pontuacao=new_pontuacao)
+        return novo_asteroide
+
     def update(self):
+        # Decrementa o temporizador de imunidade à fusão
+        if self.immune_to_fusion_timer > 0:
+            self.immune_to_fusion_timer -= 1
+
         # Atualiza a Posição 
         self.x += self.vx
         self.y += self.vy
