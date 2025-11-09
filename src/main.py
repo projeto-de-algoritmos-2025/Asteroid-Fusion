@@ -1,9 +1,10 @@
 from models.Player import Player
 from models.Asteroid import Asteroid
 from config import *
+from time import sleep
+from algorithm.closest_pair import closest_pair
 import pygame
 import random
-from time import sleep
 
 def desenhar_placar(surface, jogador, score, font, life_icon_img, game_over, tela, fonte_placar):
     texto_angulo = f"Ângulo: {int((jogador.angle + PROPULSION_OFFSET) % 360)}°"       
