@@ -1,7 +1,7 @@
-# --- ⚙️ Configurações de Janela e Jogo ---
-LARGURA_TELA = 800
-ALTURA_TELA = 600
-FPS = 100
+# --- Configurações de Janela e Jogo ---
+LARGURA_TELA = 1200
+ALTURA_TELA = 800
+FPS = 60
 TITULO = "Deep Impact: Asteroid Fusion"
 
 # --- Cores (usando RGB) ---
@@ -17,12 +17,14 @@ TIPO_ASTEROIDE = {
     2: {"nivel": "Medio", "raio": 60, "velocidade_max": 2}, # asteroid2.png
     1: {"nivel": "Pequeno", "raio": 20, "velocidade_max": 3} # asteroid1.png
 }
-ASTEROIDES_MAXIMOS_TELA = 12
+ASTEROIDES_MAXIMOS_TELA = int((LARGURA_TELA / ALTURA_TELA) * 2)
+MAX_ASTEROIDES_TELA = 40
 NUM_ASTEROIDES_INICIAIS = 4
 # 1s = 3/10 => 30%
 # 2s = 4/10 => 40%
 # 3s = 3/10 => 30%
 PROBABILIDADE_ASTEROIDES = [1, 1, 1, 2, 2, 2, 2, 3, 3, 3]
+ALERTA_COLISAO = 150  # distância para alerta de colisão
 
 # --- Configurações das Balas ---
 TAMANHO_BALA = 4
@@ -45,4 +47,8 @@ JANELA_INVULNERABILIDADE = FPS * 2
 PONTUACAO_PEQUENO = 100
 PONTUACAO_MEDIO = 50
 PONTUACAO_GRANDE = 20
-PONTUACAO_FUSAO = 1000 
+PONTUACAO_FUSAO = 200 
+
+# --- Outras Configurações ---
+INF = float('inf')
+INTERVALO_CALCULO = FPS * 3
