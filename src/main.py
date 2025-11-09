@@ -118,10 +118,28 @@ def bullet_collision(balas, asteroides, all_sprites, score):
 
     return score
 
+def asteroid_collision(asteroides, asteroide_a, asteroide_b, all_sprites):
+    # se os asteroides do par mais próximo colidiram, faz a lógica de fusão
+    if asteroide_a and asteroide_b:
+        if asteroide_a.immune_to_fusion_timer == 0 and asteroide_b.immune_to_fusion_timer == 0:
+            # verificar colisão entre os dois asteroides mais próximos
+            if pygame.sprite.collide_circle(asteroide_a, asteroide_b):
+                # Lógica de fusão
+                novo_asteroide = asteroide_a.fusion(asteroide_b)
+                if novo_asteroide:
+                    asteroides.add(novo_asteroide)
+                    all_sprites.add(novo_asteroide)
+                    # O PROBLEMA TÁ AQUI
+                    asteroide_a.kill()
+                    asteroide_b.kill()
+
+    return asteroides, all_sprites
+
 def collision_detection(jogador, asteroides, balas, all_sprites, game_over, score, vulneravel, asteroide_a, asteroide_b):
 
     score = bullet_collision(balas, asteroides, all_sprites, score)
 
+    asteroid_collision(asteroides, asteroide_a, asteroide_b, all_sprites)
 
     if player_collision(jogador, asteroides, game_over, vulneravel):
         game_over = True
