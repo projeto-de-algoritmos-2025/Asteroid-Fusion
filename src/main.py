@@ -9,7 +9,11 @@ import random
 # TODO
 # implementar colisão entre asteroides
     # sempre colidir os asteroides com base na distância entre eles (dmin) ou fazer isso a cada x segundos?
-    # jeito mais fácil (o mais difícil seria fazer eles se atraírem depois de certa distância) => verificar colisão entre os asteroides a cada frame => mexer na collision_detection
+    # jeito 1  => verificar colisão entre os asteroides a cada frame => mexer na collision_detection => sempre chamar a closest_pair para mostrar os asteroides mais próximos (é o jeito q tá implementado agora)
+    # jeito 2 => verificar os pares mais próximos a cada x segundos (tipo 3 segundos) => fazer a lógica de colisão só nesses dois asteroides mais próximos 
+        # aqui poderia ser:
+            # a cada x segundos, calcular o par mais próximo e fazer eles se atrairem até colidirem (não faço ideia da dificuldade disso, mas não deve ser simples)
+            # a cada x segundos, calcular o par mais próximo e ver se eles colidiram
     # não vou afirmar pq ainda não implementei, mas a lógica da colisão deve ser parecida com o split() dos asteroides, mas ao invés de criar novos asteroides, só juntar os dois em um maior
         # colisão entre:
         # 2 pequenos => 1 médio
@@ -20,10 +24,13 @@ import random
         # 1 médio + 1 pequeno => 1 grande?
     # talvez dividir a collision_detection em duas funções, uma para o jogador e outra para os asteroides
 # botar sons? acho q seria trampo dmais
-# passar a pontuação para a classe asteroide pra simplificar o collision_detection
 # o numero de asteroides na tela tá bom?
+# colocar o número de asteroides na tela no placar? 
+# mover o atributo de angulo para direita, acho que é bom deixar as informações do jogador todas em um só lugar na tela
+# tá uma putaria misturando inglês com português, tlvz escolher um idioma só
+# lógica do tiro tá boa? atirar mais balas?
 
-def desenhar_placar(surface, jogador, score, font, life_icon_img, game_over, tela, fonte_placar, d_min_atual, closest_pair_timer):
+def desenhar_placar(tela, jogador, score, fonte_placar, vida_icon, game_over, d_min_atual, closest_pair_timer):
     
     desenhar_texto(tela, f"Ângulo: {int((jogador.angle + PROPULSION_OFFSET) % 360)}°", fonte_placar, 10, 10)
     
@@ -36,7 +43,7 @@ def desenhar_placar(surface, jogador, score, font, life_icon_img, game_over, tel
     y = 45 # Na mesma linha do rótulo "Vidas:"
     for i in range(jogador.vidas):
         x = start_x + (i * (LIFE_ICON_SIZE + 5)) # 5px de espaçamento
-        tela.blit(life_icon_img, (x, y))
+        tela.blit(vida_icon, (x, y))
 
     # distancia entre o par de asteroides mais proximos
     if d_min_atual != INF:
@@ -46,14 +53,13 @@ def desenhar_placar(surface, jogador, score, font, life_icon_img, game_over, tel
         desenhar_texto(tela, "D_min: N/A", fonte_placar, 10, 40)
 
     # timer para a próxima fusão
-    tempo_restante = (INTERVALO_CALCULO - closest_pair_timer) / FPS
-    texto_timer = f"Próxima Fusão em: {tempo_restante:.1f}s"
-    desenhar_texto(tela, texto_timer, fonte_placar, 10, 70, AZUL)
+    tempo_restante = (INTERVALO_CALCULO_PARES - closest_pair_timer) / FPS
+    desenhar_texto(tela, f"Próxima Fusão em: {tempo_restante:.1f}s", fonte_placar, 10, 70, AZUL)
 
     if game_over:
         texto_fim = "GAME OVER"
         # Fonte um pouco maior para Game Over
-        fonte_game_over = pygame.font.Font(None, 64) 
+        fonte_game_over = pygame.font.Font(None, FONTE_GAME_OVER_TAMANHO) 
         desenhar_texto(tela, texto_fim, fonte_game_over, LARGURA_TELA // 2 - 150, ALTURA_TELA // 2 - 32, VERMELHO_ALERTA)
 
 def desenhar_texto(surface, text, font, x, y, color=BRANCO):
@@ -62,7 +68,7 @@ def desenhar_texto(surface, text, font, x, y, color=BRANCO):
     text_rect.topleft = (x, y)
     surface.blit(text_surface, text_rect)
 
-def collision_detection(jogador, asteroides, balas, all_sprites, game_over, score, vulnerable):
+def collision_detection(jogador, asteroides, balas, all_sprites, game_over, score, vulneravel):
     # Colisão: Bala vs. Asteroide 
     # True, False: Destrói a bala, mas não o asteroide para processar o split primeiro.
     colisoes_bala_ast = pygame.sprite.groupcollide(
@@ -74,12 +80,7 @@ def collision_detection(jogador, asteroides, balas, all_sprites, game_over, scor
     for bala_atingida, asteroides_atingidos in colisoes_bala_ast.items(): 
         # Itera sobre cada Asteroide atingido por esta bala
         for asteroide_atingido in asteroides_atingidos:
-            if asteroide_atingido.nivel == "Pequeno":
-                score += PONTUACAO_PEQUENO
-            elif asteroide_atingido.nivel == "Medio":
-                score += PONTUACAO_MEDIO
-            elif asteroide_atingido.nivel == "Grande":
-                score += PONTUACAO_GRANDE
+            score += asteroide_atingido.pontuacao
                 
             # Lógica de quebra (split)
             novos = asteroide_atingido.split()
@@ -100,7 +101,7 @@ def collision_detection(jogador, asteroides, balas, all_sprites, game_over, scor
         game_over = True
         jogador.kill() 
     elif colisoes_jogador_ast and jogador.vidas > 0:
-        if not vulnerable["is_vulneravel"]:
+        if not vulneravel["is_vulneravel"]:
             return game_over, score  # Ignora a colisão se estiver invulnerável
         jogador.vidas -= 1
         # Reposiciona o jogador no centro da tela
@@ -109,8 +110,8 @@ def collision_detection(jogador, asteroides, balas, all_sprites, game_over, scor
         jogador.vx = 0
         jogador.vy = 0
         jogador.angle = 0
-        vulnerable["is_vulneravel"] = False
-        vulnerable["tempo_invulneravel"] = JANELA_INVULNERABILIDADE
+        vulneravel["is_vulneravel"] = False
+        vulneravel["janela_invulneravel"] = JANELA_INVULNERABILIDADE
     return game_over, score
 
 def spawn_asteroids(asteroides, all_sprites, spawn_timer):
@@ -119,26 +120,14 @@ def spawn_asteroids(asteroides, all_sprites, spawn_timer):
         asteroides.add(novo_asteroide)
         all_sprites.add(novo_asteroide)
 
-def start_asteroid_field(asteroides, all_sprites):
-    for _ in range(NUM_ASTEROIDES_INICIAIS):
-        # O construtor sem x, y gera o asteroide fora da tela
-        ast = Asteroid(size=random.choice([2, 3])) # Começa com Médio e Grande
-        asteroides.add(ast)
-        all_sprites.add(ast)
-
 def main():
-    score = 0
-    game_over = False
-
     # Inicialização do Pygame
     pygame.init()
     tela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
     pygame.display.set_caption(TITULO)
-
-    # Taxa de Quadros (FPS)
     clock = pygame.time.Clock()
 
-    fonte_placar = pygame.font.Font(None, 24) 
+    fonte_placar = pygame.font.Font(None, FONTE_PLACAR_TAMANHO)
 
     # Grupo de Sprites
     jogador = Player(LARGURA_TELA // 2, ALTURA_TELA // 2)
@@ -146,26 +135,30 @@ def main():
     asteroides = pygame.sprite.Group()
     all_sprites = pygame.sprite.Group()
     all_sprites.add(jogador)
-    life_icon_img = pygame.image.load(LIFE_ICON_PATH).convert_alpha()
-    life_icon_img = pygame.transform.scale(life_icon_img, (LIFE_ICON_SIZE, LIFE_ICON_SIZE))
+    vida_icon = pygame.image.load(LIFE_ICON_PATH).convert_alpha()
+    vida_icon = pygame.transform.scale(vida_icon, (LIFE_ICON_SIZE, LIFE_ICON_SIZE))
+    jogador_invuln_img = pygame.image.load(PLAYER_VULNERAVEL_ICON).convert_alpha()
+    jogador_invuln_img = pygame.transform.scale(jogador_invuln_img, (PLAYER_SIZE, PLAYER_SIZE))
 
-    start_asteroid_field(asteroides, all_sprites)
-
-    # Loop Principal do Jogo
-    closest_pair_timer = 0
-    d_min_atual = INF
+    # Variáveis do Jogo
     asteroide_a = None
     asteroide_b = None
+    d_min_atual = INF
+    game_over = False
     running = True
     in_fusion = False
+    score = 0
+    closest_pair_timer = 0
     spawn_timer = 0
-    vulnerable = {"is_vulneravel": True, "tempo_invulneravel": 0}  # Jogador começa vulnerável
+    vulneravel = {"is_vulneravel": True, "janela_invulneravel": 0}  
+
+    # Loop Principal do Jogo
     while running:
         # Processando eventos
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            elif event.type == pygame.KEYDOWN and not game_over:
+            elif event.type == pygame.KEYDOWN and not game_over and vulneravel["is_vulneravel"]:
                 if event.key == pygame.K_SPACE:
                     projetil = jogador.atirar()
                     balas.add(projetil)
@@ -182,13 +175,13 @@ def main():
             teclas = pygame.key.get_pressed()
             jogador.handle_input(teclas)
 
-            game_over, score = collision_detection(jogador, asteroides, balas, all_sprites, game_over, score, vulnerable)
+            game_over, score = collision_detection(jogador, asteroides, balas, all_sprites, game_over, score, vulneravel)
 
             # Atualiza o estado de invulnerabilidade
-            if not vulnerable["is_vulneravel"]:
-                vulnerable["tempo_invulneravel"] = max(0, vulnerable["tempo_invulneravel"] - 1) # Decrementa por 1 frame
-                if vulnerable["tempo_invulneravel"] == 0:
-                    vulnerable["is_vulneravel"] = True
+            if not vulneravel["is_vulneravel"]:
+                vulneravel["janela_invulneravel"] = max(0, vulneravel["janela_invulneravel"] - 1) # Decrementa por 1 frame
+                if vulneravel["janela_invulneravel"] == 0:
+                    vulneravel["is_vulneravel"] = True
 
             if not in_fusion:
                 # calcula o par de asteroides mais proximos
@@ -216,6 +209,7 @@ def main():
         
         tela.fill(PRETO)
 
+        # desenha o status de proximidade dos asteroides
         if asteroide_a and asteroide_b:
             p1 = (int(asteroide_a.x), int(asteroide_a.y))
             p2 = (int(asteroide_b.x), int(asteroide_b.y))
@@ -233,9 +227,16 @@ def main():
             pygame.draw.circle(tela, linha_cor, p1, asteroide_a.raio, 2)
             pygame.draw.circle(tela, linha_cor, p2, asteroide_b.raio, 2)
 
+        # mudando imagem do jogador quando invulnerável
+        if vulneravel["is_vulneravel"]:
+            jogador.original_image = pygame.image.load(PLAYER_ICON).convert_alpha()
+            jogador.original_image = pygame.transform.scale(jogador.original_image, (jogador.raio, jogador.raio))
+        else:
+            jogador.original_image = jogador_invuln_img
+
         all_sprites.draw(tela)
 
-        desenhar_placar(tela, jogador, score, fonte_placar, life_icon_img, game_over, tela, fonte_placar, d_min_atual, closest_pair_timer)
+        desenhar_placar(tela, jogador, score, fonte_placar, vida_icon, game_over, d_min_atual, closest_pair_timer)
 
         # limpa o buffer e atualiza a tela com as sprites atualizadas
         pygame.display.flip()

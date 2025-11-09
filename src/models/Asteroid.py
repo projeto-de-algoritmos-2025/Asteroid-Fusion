@@ -4,7 +4,7 @@ import random
 import math
 
 class Asteroid(pygame.sprite.Sprite):
-    def __init__(self, size:int, x=None, y=None, vx=None, vy=None):
+    def __init__(self, size:int, x=None, y=None, vx=None, vy=None, pontuacao=None):
         super().__init__()
         
         # Definindo atributos com base no tamanho
@@ -13,13 +13,14 @@ class Asteroid(pygame.sprite.Sprite):
         self.nivel = props["nivel"]
         self.raio = props["raio"]
         self.velocidade_max = props["velocidade_max"]
+        self.pontuacao = props["pontuacao"] if pontuacao is None else pontuacao # pontuação passada na criação (usar na fusão, tlvz somar as pontuações dos dois asteroides e multiplicar por um fator?)
         hitbox_deflate = -(3.5**size) - 8
 
         # gerando posição inicial
         if x is None or y is None:
             self.x, self.y = self._generate_initial_coordinates() # Posição inicial fora da tela
         else:
-            self.x = float(x) # Começa na posição da colisão
+            self.x = float(x) # Começa na posição do split
             self.y = float(y)
 
         # gerando velocidade inicial
@@ -31,7 +32,7 @@ class Asteroid(pygame.sprite.Sprite):
 
         # Angulação inicial e velocidade de rotação do asteroide
         self.angle = random.uniform(0, 360) 
-        self.rot_speed = random.uniform(-1, 1) # Velocidade de rotação visual
+        self.rot_speed = random.uniform(-1, 1) # Velocidade de rotação 
         
         # Definindo a imagem do asteroide
         self.original_image = pygame.image.load(f"src/assets/asteroid{size}.png").convert_alpha()
@@ -77,10 +78,10 @@ class Asteroid(pygame.sprite.Sprite):
         return float(x), float(y)
 
     def split(self):
-        novos_asteroides = []
         # 1 asteroide grande se divide em 2 médios
         # 1 asteroide médio se divide em 2 pequenos
         new_size = self.size - 1
+        novos_asteroides = []
 
         if new_size < 1:
             return novos_asteroides
