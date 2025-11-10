@@ -9,6 +9,7 @@ BRANCO = (255, 255, 255)
 PRETO = (0, 0, 0)
 AZUL = (0, 100, 200)
 VERMELHO_ALERTA = (255, 0, 50) 
+LARANJA = (255, 165, 0)
 AMARELO_DMIN = (255, 255, 0)
 
 # --- Configurações de Asteroides ---
@@ -24,7 +25,8 @@ ASTEROIDES_MAXIMOS_TELA = int((LARGURA_TELA / ALTURA_TELA) * 10)
 MAX_ASTEROIDES_TELA = 40
 PROBABILIDADE_ASTEROIDES = [1, 2, 2, 2, 2, 3, 3, 3, 3, 3] # 1's = 1/10 => 10%, 2's = 4/10 => 40%, 3's = 5/10 => 50%
 ALERTA_COLISAO = 100  # distância para alerta de colisão
-INTERVALO_CALCULO_PARES = FPS * 3
+INTERVALO_FUSAO = FPS * 3
+IMUNIDADE_FUSAO = FPS * 2  # tempo de imunidade após fusão
 
 # --- Configurações das Balas ---
 TAMANHO_BALA = 4

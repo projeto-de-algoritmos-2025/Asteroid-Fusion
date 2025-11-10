@@ -96,7 +96,7 @@ class Asteroid(pygame.sprite.Sprite):
         for _ in range(2):
             new_vx = base_vel * math.cos(push_angle_rad)
             new_vy = base_vel * math.sin(push_angle_rad)
-            novos_asteroides.append(Asteroid(new_size, x=self.x, y=self.y, vx=new_vx, vy=new_vy, immune_to_fusion=FPS * 2)) # novos asteroides começam imunes à fusão
+            novos_asteroides.append(Asteroid(new_size, x=self.x, y=self.y, vx=new_vx, vy=new_vy, immune_to_fusion=IMUNIDADE_FUSAO)) # novos asteroides começam imunes à fusão
             push_angle_rad += math.pi # varia 180 graus para o próximo asteroide, mandando cada um para um lado
 
         return novos_asteroides

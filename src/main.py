@@ -7,14 +7,14 @@ import pygame
 import random
 
 # TODO
-# colocar um timer pra poder fazer a fusão dos asteroides
-# tá uma putaria misturando inglês com português, tlvz escolher um só ou fdse
-# botar sons? acho q seria trampo dmais
+# colocar um timer pra poder fazer a fusão dos asteroides 
+# tá uma putaria misturando inglês com português, tlvz escolher um só ou fdse 
+# botar sons? acho q seria trampo dmais 
 # colocar o número de asteroides na tela? 
 # a quantidade de asteroides na tela tá boa?
 # lógica do tiro tá boa? atirar mais balas? e se deixar a tecla espaço pressionada?
 
-def desenhar_placar(tela, jogador, score, fonte_placar, vida_icon, game_over, d_min_atual, closest_pair_timer):
+def desenhar_placar(tela, jogador, score, fonte_placar, vida_icon, game_over, d_min_atual):
     # ----- LADO DIREITO -----
     ALTURA_INICIAL_DIREITA = 15
     OFFSET_DIREITA = 200
@@ -39,8 +39,8 @@ def desenhar_placar(tela, jogador, score, fonte_placar, vida_icon, game_over, d_
     else:
         desenhar_texto(tela, "D_min: N/A", fonte_placar, OFFSET_ESQUERDA, ALTURA_INICIAL_ESQUERDA)
     # timer para a próxima fusão
-    tempo_restante = (INTERVALO_CALCULO_PARES - closest_pair_timer) / FPS
-    desenhar_texto(tela, f"Próxima Fusão em: {tempo_restante:.1f}s", fonte_placar, OFFSET_ESQUERDA, ALTURA_INICIAL_ESQUERDA + 30, AZUL)
+    #tempo_restante = (INTERVALO_FUSAO - fusion_timer) / FPS
+    #desenhar_texto(tela, f"Próxima Fusão em: {tempo_restante:.1f}s", fonte_placar, OFFSET_ESQUERDA, ALTURA_INICIAL_ESQUERDA + 30, AZUL)
     # ----------------------
 
     if game_over:
@@ -124,7 +124,9 @@ def collision_detection(jogador, asteroides, balas, all_sprites, game_over, scor
 
     score = bullet_collision(balas, asteroides, all_sprites, score)
 
+    #if fusion_timer >= INTERVALO_FUSAO:
     asteroid_collision(asteroides, asteroide_a, asteroide_b, all_sprites)
+    #fusion_timer = 0
 
     if player_collision(jogador, asteroides, game_over, vulneravel):
         game_over = True
@@ -164,7 +166,7 @@ def main():
     game_over = False
     running = True
     score = 0
-    closest_pair_timer = 0
+    #fusion_timer = 0
     spawn_timer = 0
     vulneravel = {"is_vulneravel": True, "janela_invulneravel": 0}  
 
@@ -199,8 +201,13 @@ def main():
                 asteroide_a = None
                 asteroide_b = None
 
-            game_over, score = collision_detection(jogador, asteroides, balas, all_sprites, game_over, score, vulneravel, asteroide_a, asteroide_b)
+            game_over, score = collision_detection(
+                jogador, asteroides, balas, 
+                all_sprites, game_over, score, 
+                vulneravel, asteroide_a, asteroide_b
+            )
 
+            # isso aqui pode ficar no Player.update e Player __init__, assim como o decremento do timer de imunidade dos asteroides
             # Atualiza o estado de invulnerabilidade se o jogador colidiu com um asteroide
             if not vulneravel["is_vulneravel"]:
                 vulneravel["janela_invulneravel"] = max(0, vulneravel["janela_invulneravel"] - 1) # Decrementa por 1 frame
@@ -217,7 +224,7 @@ def main():
             # Controla o FPS
             #clock.tick(FPS)
 
-            closest_pair_timer += 1
+            #fusion_timer += 1
             spawn_timer += 1
             spawn_timer %= FPS + 1
         
@@ -241,6 +248,7 @@ def main():
             pygame.draw.circle(tela, linha_cor, p1, asteroide_a.raio, 2)
             pygame.draw.circle(tela, linha_cor, p2, asteroide_b.raio, 2)
 
+        # isso aqui tmb pode ir pro player.update, se movermos a logica de invulnerabilidade pra lá
         # mudando imagem do jogador quando invulnerável
         if vulneravel["is_vulneravel"]:
             jogador.original_image = pygame.image.load(PLAYER_ICON).convert_alpha()
@@ -250,7 +258,7 @@ def main():
 
         all_sprites.draw(tela)
 
-        desenhar_placar(tela, jogador, score, fonte_placar, vida_icon, game_over, d_min_atual, closest_pair_timer)
+        desenhar_placar(tela, jogador, score, fonte_placar, vida_icon, game_over, d_min_atual)
 
         # limpa o buffer e atualiza a tela com as sprites atualizadas
         pygame.display.flip()
