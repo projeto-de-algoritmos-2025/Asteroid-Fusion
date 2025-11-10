@@ -42,21 +42,21 @@ O projeto foi desenvolvido em Python com a biblioteca Pygame, que implementa e d
 
 ### Funcionalidades
 
-**Controles de Nave**: é possível rotacionar, acelerar e aplicar propulsão para frente e para trás.
+* **Controle da Nave**: é possível rotacionar, acelerar e aplicar propulsão para frente e para trás.
 
-**Física da Nave**: Implementa fricção e limitação de velocidade máxima. A nave se "teletransporta" para a borda oposta da tela caso ultrapasse os limites da tela.
+* **Física da Nave**: Implementa fricção e limitação de velocidade máxima. A nave se "teletransporta" para a borda oposta da tela caso ultrapasse os limites da tela.
 
-**Sistema de Vidas**: O jogador possui um número limitado de vidas (4) e entra em um estado de invulnerabilidade temporária (JANELA_INVULNERABILIDADE = 120 frames) após colidir com um asteroide, reaparecendo no centro da tela.
+* **Sistema de Vidas**: O jogador possui um número limitado de vidas (4) e entra em um estado de invulnerabilidade temporária (JANELA_INVULNERABILIDADE = 120 frames) após colidir com um asteroide, reaparecendo no centro da tela.
 
-**Asteroides Dinâmicos**: Os asteroides são gerados aleatoriamente em tamanhos Grande (tamanho = 3 e pontuação = 100), Médio (tamanho = 2 e pontuação = 50) e Pequeno (tamanho = 1 e pontuação = 20) a partir das bordas da tela.
+* **Asteroides**: Os asteroides são gerados aleatoriamente em tamanhos Grande (tamanho = 3 e pontuação = 100), Médio (tamanho = 2 e pontuação = 50) e Pequeno (tamanho = 1 e pontuação = 20) a partir das bordas da tela.
 
-**Mecânica de Divisão (Split)**: Ao ser atingido por uma bala, um asteroide se divide em dois asteroides de um nível de tamanho menor, caso o tamanho seja maior que 1.
+* **Mecânica de Divisão (Split)**: Ao ser atingido por uma bala, um asteroide se divide em dois asteroides de um nível de tamanho menor, caso o tamanho seja maior que 1.
 
-**Mecânica de Fusão (Fusion)**: Se dois asteroides colidirem, e ambos não estiverem com o temporizador de imunidade à fusão ativo (isso é necessário para que os asterroides não se fundam imediatamente após serem divididos por um tiro do jogador), eles se fundem em um asteroide de um nível de tamanho maior, com a média de suas posições e velocidades e pontuação somada dos asteroides que colidiram. Colisão entre asteroides Grandes (3) é ignorada.
+* **Mecânica de Fusão (Fusion)**: Se dois asteroides colidirem, e ambos não estiverem com o temporizador de imunidade à fusão ativo (isso é necessário para que os asterroides não se fundam imediatamente após serem divididos por um tiro do jogador), eles se fundem em um asteroide de um nível de tamanho maior, com a média de suas posições e velocidades e pontuação somada dos asteroides que colidiram. Colisão entre asteroides Grandes (3) é ignorada.
 
-**Algoritmo de Par Mais Próximo**: O algoritmo de Closest Pair of Points é executado para encontrar o par de asteroides mais próximos na tela a cada frame.
+* **Algoritmo de Par Mais Próximo**: O algoritmo de Closest Pair of Points é executado para encontrar o par de asteroides mais próximos na tela a cada frame.
 
-**Alerta Visual de Fusão**: Uma linha e círculos de alerta são desenhados em torno do par de asteroides mais próximos obtidos pelo algoritmo de dividir e conquistar, mudando de cor para alertar se a distância mínima (D_min) for menor ou igual ao ALERTA_COLISAO (100 pixels).
+* **Alerta Visual de Fusão**: Uma linha e círculos de alerta são desenhados em torno do par de asteroides mais próximos obtidos pelo algoritmo de dividir e conquistar, mudando de cor para alertar se a distância mínima (D_min) for menor ou igual ao ALERTA_COLISAO (100 pixels).
 
 ### Controles
 
